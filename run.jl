@@ -2,13 +2,17 @@
 include("body.jl")
 
 function simple_integrator_main(	)
-	dt = 0.00001
-	dt_stats = 10
-	dt_output = 10
-	time_end = 10
+	dt = 0.01
+	dt_stats  = 0.2
+	dt_output = 0.2
+	time_end  = 0.2
 
 	# method = NB.forward_step
-	method = NB.leapfrog_step
+	# method = NB.leapfrog_step
+	# method = NB.rk2_step
+	# method = NB.rk4_step
+	# method = NB.yo6_step
+	method = NB.yo8_step
 
 	info = """
 	dt: $dt
