@@ -1,5 +1,5 @@
 
-include("body.jl")
+include("nb/nb.jl")
 
 function simple_integrator_main(	)
 	dt = 0.01
