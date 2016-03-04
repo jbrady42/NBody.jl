@@ -2,7 +2,7 @@
 include("nb/nb.jl")
 
 function simple_integrator_main(	)
-	dt = 0.0001
+	dt = 0.001
 	dt_stats  = 0.1
 	dt_output = 0.1
 	time_end  = 0.1
@@ -14,7 +14,8 @@ function simple_integrator_main(	)
 	# method = NB.yo6_step
 	# method = NB.yo8_step
 
-	method = NB.ms2_step
+	# method = NB.ms2_step
+	method = NB.ms4_step
 
 	info = """
 	dt: $dt

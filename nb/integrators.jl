@@ -3,7 +3,7 @@
 
 function evolve(body::Body, dt, time_end, dt_output, dt_stats, integ_method::Function)
 	current_time = 0
-	current_step = 0
+	step = 0
 	# num_steps = round(Int, time_units / dt)
 
 	t_stats = dt_stats - 0.5*dt
@@ -11,17 +11,17 @@ function evolve(body::Body, dt, time_end, dt_output, dt_stats, integ_method::Fun
 	t_end = time_end - 0.5*dt
 
 	init_energy!(body)
-	write_stats(body, current_step, current_time)
+	write_stats(body, step, current_time)
 
 	while current_time < t_end
 		# Call the integration method
-		body.current_step = current_step
+		body.step = step
 		integ_method(body, dt)
 
 		current_time += dt
-		current_step += 1
+		step += 1
 		if current_time > t_stats
-			write_stats(body, current_step, current_time)
+			write_stats(body, step, current_time)
 			t_stats += dt_stats
 		end
 		if current_time > t_checkp
@@ -83,17 +83,35 @@ function yo8_step(body::Body, dt)
 end
 
 
-############
+######## Multistep ########
 
 function ms2_step(body::Body, dt)
-	if body.current_step == 0
-		body.prev_accel = accel(body)
+	if body.step == 0
+		body.prev_accel[:,1] = accel(body)
 		rk2_step(body, dt)
 	else
 		old_acc = accel(body)
-		jdt = old_acc - body.prev_accel
+		jdt = old_acc - body.prev_accel[:,1]
 		body.pos += body.vel*dt + 0.5*old_acc*dt*dt
 		body.vel += old_acc*dt + 0.5*jdt*dt
-		body.prev_accel = old_acc
+		body.prev_accel[:,1] = old_acc
+	end
+end
+
+function ms4_step(body::Body, dt)
+	if body.step <= 2
+		body.prev_accel[:,3-body.step] = accel(body)
+		rk4_step(body, dt)
+	else
+		ap0 = accel(body)
+		jdt = ap0*(11.0/6.0) - 3*body.prev_accel[:,1] + 1.5*body.prev_accel[:,2] - body.prev_accel[:,3]/3
+		sdt2 = 2*ap0 - 5*body.prev_accel[:,1] + 4*body.prev_accel[:,2] - body.prev_accel[:,3]
+		cdt3 = ap0 - 3*body.prev_accel[:,1] + 3*body.prev_accel[:,2] - body.prev_accel[:,3]
+		body.pos += body.vel*dt + (ap0/2.0 + jdt/6.0 + sdt2/24.0)*dt*dt
+		body.vel += ap0*dt + (jdt/2.0 + sdt2/6.0 + cdt3/24.0)*dt
+		# Update prev acc
+		body.prev_accel[:,3] = body.prev_accel[:,2]
+		body.prev_accel[:,2] = body.prev_accel[:,1]
+		body.prev_accel[:,1] = ap0
 	end
 end

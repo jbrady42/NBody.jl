@@ -1,3 +1,4 @@
+const NDIMS = 2
 
 type Body
 	mass::Float64
@@ -6,11 +7,15 @@ type Body
 
 	initial_energy
 
-	current_step
-	prev_accel
+	step
+	prev_accel::Array{Float64, 2}
 
-	function Body(mass=0.0, pos=Vector{Float64}(3), vel=Vector{Float64}(3))
-		new(mass, pos, vel, 0, 0, -1)
+
+	function Body(mass=0.0, pos=Vector{Float64}(NDIMS), vel=Vector{Float64}(NDIMS))
+		accel_hist_len = 3
+		accel_hist = zeros(Float64, NDIMS, accel_hist_len)
+
+		new(mass, pos, vel, 0, 0, accel_hist)
 	end
 end
 
