@@ -10,6 +10,8 @@ type Body
 	Body(mass=0.0, pos=Vector{Float64}(3), vel=Vector{Float64}(3)) = new(mass, pos, vel, 0)	
 end
 
+######## IO ###########
+
 import Base.show
 function show(io::IO, a::Body)
 	print(io, "mass: ", a.mass, "\n")
@@ -48,6 +50,15 @@ function write_stats(body::Body, steps, time)
 	write(STDERR, s)
 end
 
+#######################
+
+function accel(body::Body)
+	r2 = dot(body.pos, body.pos)
+	r3 = r2 * sqrt(r2) # we want r^(2/3)
+	acc = body.pos * (-body.mass / r3)
+	return acc
+end
+
 ####### Energy #########
 
 function kin_energy(body::Body)
@@ -68,7 +79,7 @@ end
 
 ###### Integrators #####
 
-function evolve(body::Body, dt, time_end, dt_output, dt_stats)
+function evolve(body::Body, dt, time_end, dt_output, dt_stats, integ_method::Function)
 	current_time = 0
 	current_step = 0
 	# num_steps = round(Int, time_units / dt)
@@ -81,7 +92,9 @@ function evolve(body::Body, dt, time_end, dt_output, dt_stats)
 	write_stats(body, current_step, current_time)
 
 	while current_time < t_end
-		integration_step(body, dt)
+		# Call the integration method
+		integ_method(body, dt)
+
 		current_time += dt
 		current_step += 1
 		if current_time > t_stats
@@ -98,12 +111,16 @@ function evolve(body::Body, dt, time_end, dt_output, dt_stats)
 	# show(body)
 end
 
-function integration_step(body::NB.Body, dt)
-	r2 = dot(body.pos, body.pos)
-	r3 = r2 * sqrt(r2) # we want r^(2/3)
-	acc = body.pos * (-body.mass / r3)
+function forward_step(body::Body, dt)
+	acc = accel(body)
 	body.pos += body.vel * dt
 	body.vel += acc * dt
+end
+
+function leapfrog_step(body::Body, dt)
+	body.vel += accel(body) * 0.5 * dt
+	body.pos += body.vel * dt
+	body.vel += accel(body) * 0.5 * dt
 end
 
 end
