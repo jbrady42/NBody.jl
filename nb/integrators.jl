@@ -15,6 +15,7 @@ function evolve(body::Body, dt, time_end, dt_output, dt_stats, integ_method::Fun
 
 	while current_time < t_end
 		# Call the integration method
+		body.current_step = current_step
 		integ_method(body, dt)
 
 		current_time += dt
@@ -29,8 +30,6 @@ function evolve(body::Body, dt, time_end, dt_output, dt_stats, integ_method::Fun
 		end
 
 	end
-
-	# show(body)
 end
 
 function forward_step(body::Body, dt)
@@ -81,4 +80,20 @@ function yo8_step(body::Body, dt)
 	for i in 1:7; leapfrog_step(body, dt*d[i]); end;
 	leapfrog_step(body, dt*d[8])
 	for i in 0:6; leapfrog_step(body, dt*d[7-i]); end;
+end
+
+
+############
+
+function ms2_step(body::Body, dt)
+	if body.current_step == 0
+		body.prev_accel = accel(body)
+		rk2_step(body, dt)
+	else
+		old_acc = accel(body)
+		jdt = old_acc - body.prev_accel
+		body.pos += body.vel*dt + 0.5*old_acc*dt*dt
+		body.vel += old_acc*dt + 0.5*jdt*dt
+		body.prev_accel = old_acc
+	end
 end

@@ -3,9 +3,15 @@ type Body
 	mass::Float64
 	pos::Vector{Float64}
 	vel::Vector{Float64}
-	e0
 
-	Body(mass=0.0, pos=Vector{Float64}(3), vel=Vector{Float64}(3)) = new(mass, pos, vel, 0)	
+	initial_energy
+
+	current_step
+	prev_accel
+
+	function Body(mass=0.0, pos=Vector{Float64}(3), vel=Vector{Float64}(3))
+		new(mass, pos, vel, 0, 0, -1)
+	end
 end
 
 ######## IO ###########
@@ -41,8 +47,8 @@ function write_stats(body::Body, steps, time)
 	E_Kin: $(@sprintf("%.3g", kin_energy(body)))
 	E_Pot: $(@sprintf("%.3g", pot_energy(body)))
 	E_Tot: $(@sprintf("%.3g", total_energy(body)))
-	E_Tot - E_init: $(@sprintf("%.3g", (tot_energy - body.e0)))
-	(E_tot - E_init) / E_init: $(@sprintf("%.3g", (tot_energy - body.e0) / body.e0))
+	E_Tot - E_init: $(@sprintf("%.3g", (tot_energy - body.initial_energy)))
+	(E_tot - E_init) / E_init: $(@sprintf("%.3g", (tot_energy - body.initial_energy) / body.initial_energy))
 
 	"""
 	write(STDERR, s)
@@ -72,5 +78,5 @@ function total_energy(body::Body)
 end
 
 function init_energy!(body::Body)
-	body.e0 = total_energy(body)
+	body.initial_energy = total_energy(body)
 end

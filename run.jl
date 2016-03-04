@@ -2,17 +2,19 @@
 include("nb/nb.jl")
 
 function simple_integrator_main(	)
-	dt = 0.01
-	dt_stats  = 0.2
-	dt_output = 0.2
-	time_end  = 0.2
+	dt = 0.0001
+	dt_stats  = 0.1
+	dt_output = 0.1
+	time_end  = 0.1
 
 	# method = NB.forward_step
 	# method = NB.leapfrog_step
 	# method = NB.rk2_step
 	# method = NB.rk4_step
 	# method = NB.yo6_step
-	method = NB.yo8_step
+	# method = NB.yo8_step
+
+	method = NB.ms2_step
 
 	info = """
 	dt: $dt
@@ -27,6 +29,7 @@ function simple_integrator_main(	)
 	
 	body = NB.read_body()
 	NB.evolve(body, dt, time_end, dt_output, dt_stats, method)
+	# show(body)
 end
 
 function basic_test()
