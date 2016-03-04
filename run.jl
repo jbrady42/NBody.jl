@@ -15,7 +15,8 @@ function simple_integrator_main(	)
 	# method = NB.yo8_step
 
 	# method = NB.ms2_step
-	method = NB.ms4_step
+	# method = NB.ms4_step
+	method = NB.ms4pc_step
 
 	info = """
 	dt: $dt

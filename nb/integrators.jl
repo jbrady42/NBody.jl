@@ -87,14 +87,14 @@ end
 
 function ms2_step(body::Body, dt)
 	if body.step == 0
-		body.prev_accel[:,1] = accel(body)
+		set_prev_accel!(body, 1, accel(body))
 		rk2_step(body, dt)
 	else
 		old_acc = accel(body)
-		jdt = old_acc - body.prev_accel[:,1]
+		jdt = old_acc - prev_accel(body, 1)
 		body.pos += body.vel*dt + 0.5*old_acc*dt*dt
 		body.vel += old_acc*dt + 0.5*jdt*dt
-		body.prev_accel[:,1] = old_acc
+		set_prev_accel!(body, 1, old_acc)
 	end
 end
 
@@ -113,5 +113,39 @@ function ms4_step(body::Body, dt)
 		body.prev_accel[:,3] = body.prev_accel[:,2]
 		body.prev_accel[:,2] = body.prev_accel[:,1]
 		body.prev_accel[:,1] = ap0
+	end
+end
+
+function ms4pc_step(body::Body, dt)
+	if body.step == 0
+		set_prev_accel!(body, 4, accel(body))
+		rk4_step(body, dt)
+	elseif body.step == 1
+		set_prev_accel!(body, 3	, accel(body))
+		rk4_step(body, dt)
+	elseif body.step == 2
+		set_prev_accel!(body, 2, accel(body))
+		rk4_step(body, dt)
+		set_prev_accel!(body, 1, accel(body))
+	else
+		old_pos = body.pos
+		old_vel = body.vel
+		# ap0 = accel(body)
+		jdt = prev_accel(body, 1)*(11.0/6.0) - 3*prev_accel(body, 2) + 1.5*prev_accel(body, 3) - prev_accel(body, 4)/3
+		sdt2 = 2*prev_accel(body, 1) - 5*prev_accel(body, 2) + 4*prev_accel(body, 3) - prev_accel(body, 4)
+		cdt3 = prev_accel(body, 1) - 3*prev_accel(body, 2) + 3*prev_accel(body, 3) - prev_accel(body, 4)
+		body.pos += body.vel*dt + (prev_accel(body, 1)/2.0 + jdt/6.0 + sdt2/24.0)*dt*dt
+		
+		set_prev_accel!(body, 4, prev_accel(body, 3))
+		set_prev_accel!(body, 3, prev_accel(body, 2))
+		set_prev_accel!(body, 2, prev_accel(body, 1))
+		set_prev_accel!(body, 1, accel(body))
+
+		jdt = prev_accel(body, 1)*(11.0/6.0) - 3*prev_accel(body, 2) + 1.5*prev_accel(body, 3) - prev_accel(body, 4)/3
+		sdt2 = 2*prev_accel(body, 1) - 5*prev_accel(body, 2) + 4*prev_accel(body, 3) - prev_accel(body, 4)
+		cdt3 = prev_accel(body, 1) - 3*prev_accel(body, 2) + 3*prev_accel(body, 3) - prev_accel(body, 4)
+
+		body.vel = old_vel + prev_accel(body, 1)*dt + (-jdt/2.0 + sdt2/6.0 - cdt3/24.0)*dt
+		body.pos = old_pos + body.vel*dt + (-prev_accel(body, 1)/2.0 + jdt/6.0 - sdt2/24.0)*dt*dt
 	end
 end

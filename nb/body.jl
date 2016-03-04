@@ -12,7 +12,7 @@ type Body
 
 
 	function Body(mass=0.0, pos=Vector{Float64}(NDIMS), vel=Vector{Float64}(NDIMS))
-		accel_hist_len = 3
+		accel_hist_len = 4
 		accel_hist = zeros(Float64, NDIMS, accel_hist_len)
 
 		new(mass, pos, vel, 0, 0, accel_hist)
@@ -66,6 +66,14 @@ function accel(body::Body)
 	r3 = r2 * sqrt(r2) # we want r^(2/3)
 	acc = body.pos * (-body.mass / r3)
 	return acc
+end
+
+function prev_accel(body::Body, n::Int)
+	return body.prev_accel[:,n]
+end
+
+function set_prev_accel!(body::Body, n::Int, prev::Vector)
+	body.prev_accel[:,n] = prev
 end
 
 ####### Energy #########
