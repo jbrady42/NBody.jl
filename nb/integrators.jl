@@ -149,3 +149,15 @@ function ms4pc_step(body::Body, dt)
 		body.pos = old_pos + body.vel*dt + (-prev_accel(body, 1)/2.0 + jdt/6.0 - sdt2/24.0)*dt*dt
 	end
 end
+
+function hermite_step(body::Body, dt)
+	old_pos = body.pos
+	old_vel = body.vel
+	old_acc = accel(body)
+	old_jerk = jerk(body)
+
+	body.pos += body.vel*dt + old_acc*(dt*dt/2.0) + old_jerk*(dt*dt*dt/6.0)
+	body.vel += old_acc*dt + old_jerk*(dt*dt/2.0)
+	body.vel = old_vel + (old_acc + accel(body))*(dt/2.0) + (old_jerk - jerk(body))*(dt*dt/12.0)
+	body.pos = old_pos + (old_vel + body.vel)*(dt/2.0) + (old_acc - accel(body))*(dt*dt/12.0)
+end

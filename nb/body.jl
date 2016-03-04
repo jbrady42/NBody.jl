@@ -68,6 +68,13 @@ function accel(body::Body)
 	return acc
 end
 
+function jerk(body::Body)
+	r2 = dot(body.pos, body.pos)
+	r3 = r2 * sqrt(r2) # we want r^(2/3)
+	j = (body.vel+body.pos*(-3*(dot(body.pos,body.vel))/r2))*(-body.mass/r3)
+	return j
+end
+
 function prev_accel(body::Body, n::Int)
 	return body.prev_accel[:,n]
 end
