@@ -10,8 +10,6 @@ type Body
 	step
 	prev_accel::Array{Float64, 2}
 
-	nbody
-
 
 	function Body(mass=0.0, pos=Vector{Float64}(NDIMS), vel=Vector{Float64}(NDIMS))
 		accel_hist_len = 4
@@ -50,25 +48,26 @@ end
 #######################
 
 function accel(body::Body)
-	acc = body.pos * 0
-	for a in body.nbody.bodies
-		if a != body
-			r = a.pos - body.pos
-			r2 = dot(r,r)
-			r3 = r2*sqrt(r2)
-			acc += r*(a.mass/r3)
-		end
-	end
+	r2 = dot(body.pos, body.pos)
+	r3 = r2 * sqrt(r2) # we want r^(2/3)
+	acc = body.pos * (-body.mass / r3)
 	return acc
 end
 
-# function jerk(body::Body)
-# 	r2 = dot(body.pos, body.pos)
-# 	r3 = r2 * sqrt(r2) # we want r^(2/3)
-# 	j = (body.vel+body.pos*(-3*(dot(body.pos,body.vel))/r2))*(-body.mass/r3)
-# 	return j
-# end
+function jerk(body::Body)
+	r2 = dot(body.pos, body.pos)
+	r3 = r2 * sqrt(r2) # we want r^(2/3)
+	j = (body.vel+body.pos*(-3*(dot(body.pos,body.vel))/r2))*(-body.mass/r3)
+	return j
+end
 
+function prev_accel(body::Body, n::Int)
+	return body.prev_accel[:,n]
+end
+
+function set_prev_accel!(body::Body, n::Int, prev::Vector)
+	body.prev_accel[:,n] = prev
+end
 
 ####### Energy #########
 
@@ -77,12 +76,13 @@ function kin_energy(body::Body)
 end
 
 function pot_energy(body::Body)
-	p = 0
-	for a in body.nbody.bodies
-		if a != body
-			r = a.pos - body.pos
-			p += -body.mass*a.mass/sqrt(dot(r,r))
-		end
-	end
-	return p
+	return -body.mass / sqrt(dot(body.pos, body.pos))
+end
+
+function total_energy(body::Body)
+	return kin_energy(body) + pot_energy(body)
+end
+
+function init_energy!(body::Body)
+	body.initial_energy = total_energy(body)
 end
