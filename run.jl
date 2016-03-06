@@ -2,12 +2,13 @@
 # include("nb/nb.jl")
 push!(LOAD_PATH, pwd())
 
-import NB
+using NB
 
 function nbody_main()
-	dt = 0.00005				# Time step
+	soften_len = 0.1
+	dt = 0.001				# Time step
 	dt_stats  = 2			# Output states every
-	dt_output = 10		# Output data every 
+	dt_output = 2		# Output data every 
 	time_end  = 2			# Duration
 	init_out = false	# Output initial conditions
 	x_info = false			# Output extra debug info
@@ -18,6 +19,7 @@ function nbody_main()
 	method = NB.rk4_step
 
 	info = """
+	soft_len: $soften_len
 	dt: $dt
 	dt_stats: $dt_stats
 	dt_output: $dt_output
@@ -27,9 +29,10 @@ function nbody_main()
 	"""
 	write(STDERR, info)
 	
-	nb = NB.read_nbody()
+	nb = read_nbody()
+	nb.soften_len = soften_len
 	# print(nb)
-	NB.evolve(nb, method, dt, time_end, dt_output, dt_stats, init_out, x_info)
+	evolve(nb, method, soften_len, dt, time_end, dt_output, dt_stats, init_out, x_info)
 end
 
 # simple_integrator_main()

@@ -3,9 +3,12 @@ type NBody
 	N
 	time
 	bodies::Array{Body}
+
 	initial_energy
+	soften_len
 end
 
+NBody(n, current_time) = NBody(n, current_time, Array{Body}(n), 0, 0)
 ####### Energy #########
 
 function kin_energy(nb::NBody)
@@ -26,11 +29,11 @@ end
 
 
 function accel(body::Body, nb::NBody)
-	return accel(body, nb.bodies)
+	return accel(body, nb.bodies, nb.soften_len)
 end
 
 function pot_energy(body::Body, nb::NBody)
-	return pot_energy(body, nb.bodies)
+	return pot_energy(body, nb.bodies, nb.soften_len)
 end
 
 ######## IO ##########
@@ -39,7 +42,7 @@ function read_nbody()
 	n = parse(Int, readline())
 	current_time = parse(Float64, readline())
 
-	nb = NBody(n, current_time, Array{Body}(n), 0)
+	nb = NBody(n, current_time)
 	for i in 1:n
 		body = read_body()
 		nb.bodies[i] = body
@@ -61,7 +64,9 @@ function ppx(nb::NBody)
 	print(io, "N: ", length(nb.bodies), "\n")
 	@printf(io, "time: %24.16e\n", nb.time)
 	for a in nb.bodies
-		pp(io, a, nb.bodies)
+		show(io, a)
+		acc = accel(a, nb)
+		print(io, "accel: ", join(acc, ", "), "\n")
 	end
 end
 

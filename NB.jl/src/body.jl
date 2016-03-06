@@ -51,13 +51,13 @@ end
 
 #######################
 
-function accel(body::Body, bodies::Array{Body})
+function accel(body::Body, bodies::Array{Body}, soft_len)
 	acc = zeros(body.vel)
 	# println(acc)
 	for a in bodies
 		if a != body
 			r = a.pos - body.pos
-			r2 = dot(r,r)
+			r2 = dot(r,r) + soft_len*soft_len
 			r3 = r2*sqrt(r2)
 			acc += r*(a.mass/r3)
 		end
@@ -79,12 +79,12 @@ function kin_energy(body::Body)
 	return 0.5 * body.mass * dot(body.vel, body.vel)
 end
 
-function pot_energy(body::Body, bodies)
+function pot_energy(body::Body, bodies, soft_len)
 	p = 0
 	for a in bodies
 		if a != body
 			r = a.pos - body.pos
-			p += -body.mass*a.mass/sqrt(dot(r,r))
+			p += -body.mass*a.mass/sqrt(dot(r,r) + soft_len*soft_len)
 		end
 	end
 	return p

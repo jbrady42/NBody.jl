@@ -1,7 +1,7 @@
 
 ###### Integrators #####
 
-function evolve(nb, integ_method::Function, dt, time_end, 
+function evolve(nb, integ_method::Function, soften_len, dt, time_end, 
 									dt_output, dt_stats, init_out, x_info)
 
 	current_time = 0
