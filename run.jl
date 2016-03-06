@@ -1,53 +1,18 @@
 
-include("nb/nb.jl")
+# include("nb/nb.jl")
+push!(LOAD_PATH, pwd())
 
-function simple_integrator_main(	)
-	dt = 0.01
-	dt_stats  = 0.1
-	dt_output = 0.1
-	time_end  = 0.1
+import NB
 
-	# method = NB.forward_step
-	# method = NB.leapfrog_step
-	# method = NB.rk2_step
-	# method = NB.rk4_step
-	# method = NB.yo6_step
-	# method = NB.yo8_step
-
-	# method = NB.ms2_step
-	# method = NB.ms4_step
-	# method = NB.ms4pc_step
-
-	method = NB.hermite_step
-
-	info = """
-	dt: $dt
-	dt_stats: $dt_stats
-	dt_output: $dt_output
-	dt_end: $time_end
-	method: $method
-
-	"""
-
-	write(STDERR, info)
-	
-	body = NB.read_body()
-	NB.evolve(body, dt, time_end, dt_output, dt_stats, method)
-	# show(body)
-end
-
-function basic_test()
-	b = NB.read_body()
-	print(b)
-end
-
-function nbody_test()
+function nbody_main()
 	dt = 0.0001
 	dt_stats  = 10
-	dt_output = 1
+	dt_output = 10
 	time_end  = 10
 
-	method = NB.forward_step
+	# method = NB.forward_step
+	# method = NB.rk2_step
+	method = NB.rk4_step
 
 	info = """
 	dt: $dt
@@ -59,10 +24,11 @@ function nbody_test()
 	"""
 	write(STDERR, info)
 	
-	nb = NB.read_nbody()
-	NB.evolve(nb, dt, time_end, dt_output, dt_stats, method)
+	@time nb = NB.read_nbody()
+	# print(nb)
+	@time NB.evolve(nb, dt, time_end, dt_output, dt_stats, method)
 end
 
 # simple_integrator_main()
 # basic_test()
-nbody_test()
+nbody_main()

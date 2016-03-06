@@ -5,19 +5,14 @@ type Body
 	pos::Vector{Float64}
 	vel::Vector{Float64}
 
-	initial_energy
-
-	step
-	prev_accel::Array{Float64, 2}
-
 	nbody
 
 
 	function Body(mass=0.0, pos=Vector{Float64}(NDIMS), vel=Vector{Float64}(NDIMS))
-		accel_hist_len = 4
-		accel_hist = zeros(Float64, NDIMS, accel_hist_len)
+		# accel_hist_len = 4
+		# accel_hist = zeros(Float64, NDIMS, accel_hist_len)
 
-		new(mass, pos, vel, 0, 0, accel_hist)
+		new(mass, pos, vel)
 	end
 end
 
@@ -50,7 +45,8 @@ end
 #######################
 
 function accel(body::Body)
-	acc = body.pos * 0
+	acc = zeros(Float64, NDIMS)
+	# println(acc)
 	for a in body.nbody.bodies
 		if a != body
 			r = a.pos - body.pos
@@ -73,7 +69,7 @@ end
 ####### Energy #########
 
 function kin_energy(body::Body)
-	return 0.5 * dot(body.vel, body.vel)
+	return 0.5 * body.mass * dot(body.vel, body.vel)
 end
 
 function pot_energy(body::Body)

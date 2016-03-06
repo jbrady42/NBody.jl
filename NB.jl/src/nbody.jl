@@ -1,5 +1,6 @@
 
 type NBody
+	N
 	time
 	bodies::Array{Body}
 	initial_energy
@@ -12,7 +13,7 @@ function kin_energy(nb::NBody)
 end
 
 function pot_energy(nb::NBody)
-	return mapreduce(pot_energy, +, nb.bodies) / 2.0
+	return mapreduce(pot_energy, +, nb.bodies)  / 2
 end
 
 function total_energy(nb::NBody)
@@ -29,7 +30,7 @@ function read_nbody()
 	n = parse(Int, readline())
 	current_time = parse(Float64, readline())
 
-	nb = NBody(current_time, Array{Body}(n), 0)
+	nb = NBody(n, current_time, Array{Body}(n), 0)
 	for i in 1:n
 		body = read_body()
 		body.nbody = nb
@@ -59,20 +60,12 @@ end
 function write_stats(nb::NBody, steps)
 	tot_energy = total_energy(nb)
 	current_time = 0
-	# s = """
-	# Time: $(@sprintf("%.3g", time)) , steps: $steps
-	# E_Kin: $(@sprintf("%.3g", kin_energy(nb)))
-	# E_Pot: $(@sprintf("%.3g", pot_energy(nb)))
-	# E_Tot: $(@sprintf("%.3g", total_energy(nb)))
-	# E_Tot - E_init: $(@sprintf("%.3g", (tot_energy - nb.initial_energy)))
-	# (E_tot - E_init) / E_init: $(@sprintf("%.3g", (tot_energy - nb.initial_energy) / nb.initial_energy))
 
-	# """
 	s = """
 	Time: $(@sprintf("%.3g", current_time)) , steps: $steps
 	E_Kin: $(@sprintf("%.3g", kin_energy(nb)))
 	E_Pot: $(@sprintf("%.3g", pot_energy(nb)))
-	E_Tot: $(@sprintf("%.3g", total_energy(nb)))
+	E_Tot: $(@sprintf("%.3g", tot_energy))
 	E_Tot - E_init: $(@sprintf("%.3g", (tot_energy - nb.initial_energy)))
 	(E_tot - E_init) / E_init: $(@sprintf("%.3g", (tot_energy - nb.initial_energy) / nb.initial_energy))
 	
