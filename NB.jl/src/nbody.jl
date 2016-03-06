@@ -56,6 +56,15 @@ function show(io::IO, nb::NBody)
 	end
 end
 
+function ppx(nb::NBody)
+	io = STDERR
+	print(io, "N: ", length(nb.bodies), "\n")
+	@printf(io, "time: %24.16e\n", nb.time)
+	for a in nb.bodies
+		pp(io, a, nb.bodies)
+	end
+end
+
 import Base.print
 function print(io::IO, nb::NBody)
 	print(io, length(nb.bodies), "\n")
@@ -65,12 +74,12 @@ function print(io::IO, nb::NBody)
 	end
 end
 
-function write_stats(nb::NBody, steps)
+function write_stats(nb::NBody, steps, x_info)
 	tot_energy = total_energy(nb)
-	current_time = 0
+	# current_time = 0
 
 	s = """
-	Time: $(@sprintf("%.3g", current_time)) , steps: $steps
+	Time: $(@sprintf("%.3g", nb.time)) , steps: $steps
 	E_Kin: $(@sprintf("%.3g", kin_energy(nb)))
 	E_Pot: $(@sprintf("%.3g", pot_energy(nb)))
 	E_Tot: $(@sprintf("%.3g", tot_energy))
@@ -79,4 +88,8 @@ function write_stats(nb::NBody, steps)
 	
 	"""
 	write(STDERR, s)
+
+	if x_info
+		ppx(nb) 
+	end
 end

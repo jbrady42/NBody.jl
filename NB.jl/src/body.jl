@@ -1,4 +1,3 @@
-const NDIMS = 2
 
 type Body
 	mass::Float64
@@ -6,7 +5,7 @@ type Body
 	vel::Vector{Float64}
 
 
-	function Body(mass=0.0, pos=Vector{Float64}(NDIMS), vel=Vector{Float64}(NDIMS))
+	function Body(mass=0.0, pos=Vector{Float64}, vel=Vector{Float64})
 		# accel_hist_len = 4
 		# accel_hist = zeros(Float64, NDIMS, accel_hist_len)
 
@@ -21,6 +20,16 @@ function show(io::IO, a::Body)
 	print(io, "mass: ", a.mass, "\n")
 	print(io, "pos: ", join(a.pos, ", "), "\n")
 	print(io, "vel: ", join(a.vel, ", "), "\n")
+end
+
+function pp(io::IO, a::Body, bodies)
+	acc = accel(a, bodies)
+	show(io, a)
+	print(io, "accel: ", join(acc, ", "), "\n")
+end
+
+function pp(a::Body, bodies)
+	pp(STDOUT, a)
 end
 
 import Base.print
@@ -42,8 +51,8 @@ end
 
 #######################
 
-function accel(body::Body, bodies)
-	acc = zeros(Float64, NDIMS)
+function accel(body::Body, bodies::Array{Body})
+	acc = zeros(body.vel)
 	# println(acc)
 	for a in bodies
 		if a != body

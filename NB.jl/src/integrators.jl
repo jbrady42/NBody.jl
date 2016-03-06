@@ -1,7 +1,9 @@
 
 ###### Integrators #####
 
-function evolve(nb, dt, time_end, dt_output, dt_stats, integ_method::Function)
+function evolve(nb, integ_method::Function, dt, time_end, 
+									dt_output, dt_stats, init_out, x_info)
+
 	current_time = 0
 	step = 0
 
@@ -10,7 +12,9 @@ function evolve(nb, dt, time_end, dt_output, dt_stats, integ_method::Function)
 	t_end = time_end - 0.5*dt
 
 	init_energy!(nb)
-	write_stats(nb, step)
+	write_stats(nb, step, x_info)
+
+	if init_out; print(nb); end
 
 	while current_time < t_end
 		# Call the integration method
@@ -18,9 +22,10 @@ function evolve(nb, dt, time_end, dt_output, dt_stats, integ_method::Function)
 		integ_method(nb, dt)
 
 		current_time += dt
+		nb.time = current_time
 		step += 1
 		if current_time > t_stats
-			write_stats(nb, step)
+			write_stats(nb, step, x_info)
 			t_stats += dt_stats
 		end
 		if current_time > t_checkp
