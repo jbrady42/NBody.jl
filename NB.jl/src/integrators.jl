@@ -43,13 +43,13 @@ end
 
 function leapfrog_step(nb::NBody, dt)
 	for b in nb.bodies
-		b.vel += accel(b) * 0.5 * dt
+		b.vel += accel(b, nb) * 0.5 * dt
 	end
 	for b in nb.bodies
 		b.pos += b.vel * dt
 	end
 	for b in nb.bodies
-		b.vel += accel(b) * 0.5 * dt
+		b.vel += accel(b, nb) * 0.5 * dt
 	end
 end
 
@@ -59,13 +59,13 @@ function rk2_step(nb::NBody, dt)
 
 	half_vel = Array{Vector{Float64}}(nb.N)
 	for (i, b) in enumerate(nb.bodies)
-		half_vel[i] = b.vel + accel(b) * 0.5 * dt
+		half_vel[i] = b.vel + accel(b, nb) * 0.5 * dt
 	end
 	for b in nb.bodies
 		b.pos += b.vel * 0.5 * dt
 	end
 	for b in nb.bodies
-		b.vel += accel(b) * dt
+		b.vel += accel(b, nb) * dt
 	end
 	for (i, b) in enumerate(nb.bodies)
 		b.pos = old_pos[i] + half_vel[i] * 0.5 * dt
@@ -77,17 +77,17 @@ function rk4_step(nb::NBody, dt)
 	# for (i, b) in enumerate(nb.bodies); old_pos[i] = b.pos; end;
 	old_pos = map(x -> x.pos, nb.bodies)
 
-	a0 = map(accel, nb.bodies)
+	a0 = map(x-> accel(x, nb), nb.bodies)
 	for (i, b) in enumerate(nb.bodies)	
 		b.pos = old_pos[i] + b.vel*0.5*dt + a0[i]*0.125*dt*dt
 	end
 
-	a1 = map(accel, nb.bodies)
+	a1 = map(x-> accel(x, nb), nb.bodies)
 	for (i, b) in enumerate(nb.bodies)
 		b.pos = old_pos[i] + b.vel*dt + a1[i]*0.5*dt*dt
 	end
 
-	a2 = map(accel, nb.bodies)
+	a2 = map(x-> accel(x, nb), nb.bodies)
 	for (i, b) in enumerate(nb.bodies)
 		b.pos = old_pos[i] + b.vel*dt + (a0[i]+a1[i]*2)*(1/6.0)*dt*dt
 	end

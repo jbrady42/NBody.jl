@@ -13,7 +13,7 @@ function kin_energy(nb::NBody)
 end
 
 function pot_energy(nb::NBody)
-	return mapreduce(pot_energy, +, nb.bodies)  / 2
+	return mapreduce(x -> pot_energy(x, nb), +, nb.bodies)  / 2
 end
 
 function total_energy(nb::NBody)
@@ -22,6 +22,15 @@ end
 
 function init_energy!(nb::NBody)
 	nb.initial_energy = total_energy(nb)
+end
+
+
+function accel(body::Body, nb::NBody)
+	return accel(body, nb.bodies)
+end
+
+function pot_energy(body::Body, nb::NBody)
+	return pot_energy(body, nb.bodies)
 end
 
 ######## IO ##########
@@ -33,7 +42,6 @@ function read_nbody()
 	nb = NBody(n, current_time, Array{Body}(n), 0)
 	for i in 1:n
 		body = read_body()
-		body.nbody = nb
 		nb.bodies[i] = body
 	end
 	return nb

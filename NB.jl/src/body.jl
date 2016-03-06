@@ -5,8 +5,6 @@ type Body
 	pos::Vector{Float64}
 	vel::Vector{Float64}
 
-	nbody
-
 
 	function Body(mass=0.0, pos=Vector{Float64}(NDIMS), vel=Vector{Float64}(NDIMS))
 		# accel_hist_len = 4
@@ -44,10 +42,10 @@ end
 
 #######################
 
-function accel(body::Body)
+function accel(body::Body, bodies)
 	acc = zeros(Float64, NDIMS)
 	# println(acc)
-	for a in body.nbody.bodies
+	for a in bodies
 		if a != body
 			r = a.pos - body.pos
 			r2 = dot(r,r)
@@ -72,9 +70,9 @@ function kin_energy(body::Body)
 	return 0.5 * body.mass * dot(body.vel, body.vel)
 end
 
-function pot_energy(body::Body)
+function pot_energy(body::Body, bodies)
 	p = 0
-	for a in body.nbody.bodies
+	for a in bodies
 		if a != body
 			r = a.pos - body.pos
 			p += -body.mass*a.mass/sqrt(dot(r,r))
