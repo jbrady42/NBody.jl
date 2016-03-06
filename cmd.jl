@@ -1,5 +1,3 @@
-push!(LOAD_PATH, pwd())
-
 using ArgParse
 
 function parse_commandline()
@@ -50,7 +48,7 @@ function main(args)
   # Should get moved in with rest of args
   nb.soften_len = args["softening_length"]
 
-  method = NB.rk4_step
+  method = NBody.rk4_step
 
   ea = EvolveArgs(method, args["softening_length"], args["step_size"],
     args["total_duration"], args["output_interval"], args["diagnostics_interval"],
@@ -81,6 +79,6 @@ end
 parsed_args = parse_commandline()
 
 # Include after arg handling
-using NB
+using NBody
 
 main(parsed_args)

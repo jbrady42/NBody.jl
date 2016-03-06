@@ -1,8 +1,5 @@
 
-# include("nb/nb.jl")
-push!(LOAD_PATH, pwd())
-
-using NB
+using NBody
 
 function nbody_main()
 	soften_len = 0.1

@@ -51,7 +51,7 @@ function evolve(nb, arg::EvolveArgs)
 	end
 end
 
-function forward_step(nb::NBody, dt)
+function forward_step(nb::NBodySystem, dt)
 	old_accel = map(accel, nb.bodies)
 	for b in nb.bodies
 		b.pos += b.vel*dt
@@ -61,7 +61,7 @@ function forward_step(nb::NBody, dt)
 	end
 end
 
-function leapfrog_step(nb::NBody, dt)
+function leapfrog_step(nb::NBodySystem, dt)
 	for b in nb.bodies
 		b.vel += accel(b, nb) * 0.5 * dt
 	end
@@ -73,7 +73,7 @@ function leapfrog_step(nb::NBody, dt)
 	end
 end
 
-function rk2_step(nb::NBody, dt)
+function rk2_step(nb::NBodySystem, dt)
 	old_pos = Array{Vector{Float64}}(nb.N)
 	for (i, b) in enumerate(nb.bodies); old_pos[i] = b.pos; end
 
@@ -92,7 +92,7 @@ function rk2_step(nb::NBody, dt)
 	end
 end
 
-function rk4_step(nb::NBody, dt)
+function rk4_step(nb::NBodySystem, dt)
 	# old_pos = Array{Vector{Float64}}(nb.N)
 	# for (i, b) in enumerate(nb.bodies); old_pos[i] = b.pos; end;
 	old_pos = map(x -> x.pos, nb.bodies)

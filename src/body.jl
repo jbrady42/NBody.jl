@@ -6,10 +6,10 @@ type Body
 
 
 	function Body(mass=0.0, pos=Vector{Float64}, vel=Vector{Float64})
-		# accel_hist_len = 4
-		# accel_hist = zeros(Float64, NDIMS, accel_hist_len)
+	# accel_hist_len = 4
+	# accel_hist = zeros(Float64, NDIMS, accel_hist_len)
 
-		new(mass, pos, vel)
+	new(mass, pos, vel)
 	end
 end
 
@@ -37,9 +37,9 @@ function print(io::IO, a::Body)
 	@printf io "%24.16e\n" a.mass
 
 	map(Array[a.pos, a.vel]) do b
-		map(x-> @printf(io,"%24.16e",x), b)
-		print(io, "\n")
-	end
+	map(x-> @printf(io,"%24.16e",x), b)
+	print(io, "\n")
+end
 end
 
 function read_body()
@@ -53,7 +53,6 @@ end
 
 function accel(body::Body, bodies::Array{Body}, soft_len)
 	acc = zeros(body.vel)
-	# println(acc)
 	for a in bodies
 		if a != body
 			r = a.pos - body.pos
@@ -62,7 +61,7 @@ function accel(body::Body, bodies::Array{Body}, soft_len)
 			acc += r*(a.mass/r3)
 		end
 	end
-	return acc
+return acc
 end
 
 # function jerk(body::Body)

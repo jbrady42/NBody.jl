@@ -1,5 +1,9 @@
+__precompile__()
+
 module NBody
+  include("body.jl")
+  include("nbody.jl")
+  include("integrators.jl")
 
-# package code goes here
-
-end # module
+  export EvolveArgs, evolve, read_nbody
+end
