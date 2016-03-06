@@ -1,20 +1,35 @@
 
 ###### Integrators #####
 
-function evolve(nb, integ_method::Function, soften_len, dt, time_end, 
-									dt_output, dt_stats, init_out, x_info)
+type EvolveArgs
+	integ_method::Function
+	soften_len
+	dt
+	time_end
+	dt_output
+	dt_stats
+	init_out
+	x_info
+end
+
+function evolve(nb, arg::EvolveArgs)
+	dt = arg.dt
+	x_info = arg.x_info
+	dt_stats = arg.dt_stats
+	dt_output = arg.dt_output
+	integ_method = arg.integ_method
 
 	current_time = 0
 	step = 0
 
-	t_stats = dt_stats - 0.5*dt
-	t_checkp = dt_output - 0.5*dt
-	t_end = time_end - 0.5*dt
+	t_stats = arg.dt_stats - 0.5*dt
+	t_checkp = arg.dt_output - 0.5*dt
+	t_end = arg.time_end - 0.5*dt
 
 	init_energy!(nb)
 	write_stats(nb, step, x_info)
 
-	if init_out; print(nb); end
+	if arg.init_out; print(nb); end
 
 	while current_time < t_end
 		# Call the integration method
