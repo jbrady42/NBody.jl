@@ -10,6 +10,11 @@ type NBodySystem
 end
 
 NBodySystem(n, current_time) = NBodySystem(n, current_time, Array{Body}(n), 0, 0)
+
+function NBodySystem(d::Dict{AbstractString, Any})
+	bodies = map(Body, d["bodies"])
+	NBodySystem(length(bodies), d["time"], bodies, get(d, "initial_energy", 0), get(d, "soften_len", 0))
+end
 ####### Energy #########
 
 function kin_energy(nb::NBodySystem)
