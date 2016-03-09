@@ -44,7 +44,16 @@ end
 
 ######## IO ##########
 
-function read_nbody()
+read_nbody() = read_nbody_json()
+
+function read_nbody_json()
+	strs = readlines(STDIN)
+	js = JSON.parse(join(strs))
+	s = NBody.NBodySystem(js)
+	return s
+end
+
+function read_nbody_dml()
 	n = parse(Int, readline())
 	current_time = parse(Float64, readline())
 
