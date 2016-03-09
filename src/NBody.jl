@@ -1,9 +1,9 @@
 __precompile__()
 
 module NBody
-  include("body.jl")
-  include("nbody.jl")
-  include("integrators.jl")
+  include("nbody/body.jl")
+  include("nbody/nbody.jl")
+  include("nbody/integrators.jl")
 
   export EvolveArgs, evolve, read_nbody
 end

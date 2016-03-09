@@ -1,3 +1,4 @@
+import JSON
 
 type NBodySystem
 	N
@@ -48,6 +49,14 @@ function read_nbody()
 		nb.bodies[i] = body
 	end
 	return nb
+end
+
+function write_snapshot(nb::NBodySystem)
+	write_snapshot(STDOUT, nb)
+end
+
+function write_snapshot(io::IO, nb::NBodySystem)
+	println(io, JSON.json(nb))
 end
 
 import Base.show
