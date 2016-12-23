@@ -13,7 +13,7 @@ type Body
 	end
 end
 
-Body(d::Dict{AbstractString, Any}) = Body(d["mass"], d["pos"], d["vel"])
+Body(d::Dict{String, Any}) = Body(d["mass"], d["pos"], d["vel"])
 
 ######## IO ###########
 
