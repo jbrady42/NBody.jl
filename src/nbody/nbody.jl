@@ -46,9 +46,13 @@ end
 
 read_nbody() = read_nbody_json()
 
-function read_nbody_json()
-	strs = readlines(STDIN)
-	js = JSON.parse(join(strs))
+function read_nbody_json(stream::IOStream = STDIN)
+	strs = readlines(stream)
+	return read_nbody_json(join(strs))
+end
+
+function read_nbody_json(str::String)
+	js = JSON.parse(str)
 	s = NBody.NBodySystem(js)
 	return s
 end
@@ -74,7 +78,7 @@ function write_snapshot(io::IO, nb::NBodySystem)
 end
 
 import Base.show
-function show(io::IO, nb::NBodySystem)	
+function show(io::IO, nb::NBodySystem)
 	print(io, "N: ", length(nb.bodies), "\n")
 	@printf(io, "time: %24.16e\n", nb.time)
 	for a in nb.bodies
@@ -118,6 +122,6 @@ function write_stats(nb::NBodySystem, steps, x_info)
 	write(STDERR, s)
 
 	if x_info
-		ppx(nb) 
+		ppx(nb)
 	end
 end
