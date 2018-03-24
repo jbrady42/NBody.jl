@@ -1,16 +1,16 @@
 
 type Body
-	mass::Float64
-	pos::Vector{Float64}
-	vel::Vector{Float64}
+  mass::Float64
+  pos::Vector{Float64}
+  vel::Vector{Float64}
 
 
-	function Body(mass=0.0, pos=Vector{Float64}, vel=Vector{Float64})
-	# accel_hist_len = 4
-	# accel_hist = zeros(Float64, NDIMS, accel_hist_len)
+  function Body(mass=0.0, pos=Vector{Float64}, vel=Vector{Float64})
+    # accel_hist_len = 4
+    # accel_hist = zeros(Float64, NDIMS, accel_hist_len)
 
-	new(mass, pos, vel)
-	end
+    new(mass, pos, vel)
+  end
 end
 
 Body(d::Dict{String, Any}) = Body(d["mass"], d["pos"], d["vel"])
@@ -19,51 +19,51 @@ Body(d::Dict{String, Any}) = Body(d["mass"], d["pos"], d["vel"])
 
 import Base.show
 function show(io::IO, a::Body)
-	print(io, "mass: ", a.mass, "\n")
-	print(io, "pos: ", join(a.pos, ", "), "\n")
-	print(io, "vel: ", join(a.vel, ", "), "\n")
+  print(io, "mass: ", a.mass, "\n")
+  print(io, "pos: ", join(a.pos, ", "), "\n")
+  print(io, "vel: ", join(a.vel, ", "), "\n")
 end
 
 function pp(io::IO, a::Body, bodies)
-	acc = accel(a, bodies)
-	show(io, a)
-	print(io, "accel: ", join(acc, ", "), "\n")
+  acc = accel(a, bodies)
+  show(io, a)
+  print(io, "accel: ", join(acc, ", "), "\n")
 end
 
 function pp(a::Body, bodies)
-	pp(STDOUT, a)
+  pp(STDOUT, a)
 end
 
 import Base.print
 function print(io::IO, a::Body)
-	@printf io "%24.16e\n" a.mass
+  @printf io "%24.16e\n" a.mass
 
-	map(Array[a.pos, a.vel]) do b
-	map(x-> @printf(io,"%24.16e",x), b)
-	print(io, "\n")
-end
+  map(Array[a.pos, a.vel]) do b
+    map(x-> @printf(io,"%24.16e",x), b)
+    print(io, "\n")
+  end
 end
 
 function read_body()
-	mass = parse(Float64, readline())
-	pos = map(x -> parse(Float64, x), split(readline()))
-	vel = map(x -> parse(Float64, x), split(readline()))
-	return Body(mass, pos, vel)
+  mass = parse(Float64, readline())
+  pos = map(x -> parse(Float64, x), split(readline()))
+  vel = map(x -> parse(Float64, x), split(readline()))
+  return Body(mass, pos, vel)
 end
 
 #######################
 
 function accel(body::Body, bodies::Array{Body}, soft_len)
-	acc = zeros(body.vel)
-	for a in bodies
-		if a != body
-			r = a.pos - body.pos
-			r2 = dot(r,r) + soft_len*soft_len
-			r3 = r2*sqrt(r2)
-			acc += r*(a.mass/r3)
-		end
-	end
-return acc
+  acc = zeros(body.vel)
+  for a in bodies
+    if a != body
+      r = a.pos - body.pos
+      r2 = dot(r,r) + soft_len*soft_len
+      r3 = r2*sqrt(r2)
+      acc += r*(a.mass/r3)
+    end
+  end
+  return acc
 end
 
 # function jerk(body::Body)
@@ -77,16 +77,16 @@ end
 ####### Energy #########
 
 function kin_energy(body::Body)
-	return 0.5 * body.mass * dot(body.vel, body.vel)
+  return 0.5 * body.mass * dot(body.vel, body.vel)
 end
 
 function pot_energy(body::Body, bodies, soft_len)
-	p = 0
-	for a in bodies
-		if a != body
-			r = a.pos - body.pos
-			p += -body.mass*a.mass/sqrt(dot(r,r) + soft_len*soft_len)
-		end
-	end
-	return p
+  p = 0
+  for a in bodies
+    if a != body
+      r = a.pos - body.pos
+      p += -body.mass*a.mass/sqrt(dot(r,r) + soft_len*soft_len)
+    end
+  end
+  return p
 end
