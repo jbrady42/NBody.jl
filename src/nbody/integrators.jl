@@ -48,6 +48,9 @@ function evolve(nb, arg::EvolveArgs)
       t_checkp += dt_output
     end
   end
+
+  # Write final snapshot and stats
+  write_snapshot(nb)
   write_stats(nb, step, x_info)
 end
 
