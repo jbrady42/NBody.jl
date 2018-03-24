@@ -52,7 +52,8 @@ function evolve(nb, arg::EvolveArgs)
 end
 
 function forward_step(nb::NBodySystem, dt)
-  old_accel = map(accel, nb.bodies)
+  nb_accel(x) = accel(x, nb)
+  old_accel = map(nb_accel, nb.bodies)
   for b in nb.bodies
     b.pos += b.vel*dt
   end
