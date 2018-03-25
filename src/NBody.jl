@@ -5,5 +5,7 @@ module NBody
   include("nbody/nbody.jl")
   include("nbody/integrators.jl")
 
-  export EvolveArgs, evolve, read_nbody, read_nbody_json
+  export EvolveArgs,
+          evolve,
+          read_nbody
 end

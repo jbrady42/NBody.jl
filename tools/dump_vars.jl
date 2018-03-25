@@ -3,7 +3,7 @@ using NBody
 function main()
     while !eof(STDIN)
         str = readline(STDIN)
-        nb = read_nbody_json(str)
+        nb = NBody.read_nbody_json(str)
 
         dump_nb(nb)
     end

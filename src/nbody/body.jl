@@ -4,6 +4,7 @@ type Body
   pos::Vector{Float64}
   vel::Vector{Float64}
 
+  id::Integer
 
   function Body(mass=0.0, pos=Vector{Float64}, vel=Vector{Float64})
     # accel_hist_len = 4
@@ -13,7 +14,15 @@ type Body
   end
 end
 
-Body(d::Dict{String, Any}) = Body(d["mass"], d["pos"], d["vel"])
+function Body(d::Dict{String, Any})
+  b = Body(d["mass"], d["pos"], d["vel"])
+  b.id = if haskey(d, "id")
+    d["id"]
+  else
+    0
+  end
+  b
+end
 
 
 ######## IO ###########
@@ -64,7 +73,7 @@ function accel(body::Body, bodies::Array{Body}, soft_len)
       acc += r*(a.mass/r3)
     end
   end
-  return acc
+  acc
 end
 
 # function jerk(body::Body)

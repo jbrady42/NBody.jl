@@ -16,6 +16,14 @@ function NBodySystem(d::Dict{String, Any})
   NBodySystem(length(bodies), d["time"], bodies, get(d, "initial_energy", 0), get(d, "soften_len", 0))
 end
 
+function set_ids(nb::NBodySystem)
+  id = 0
+  for b in nb.bodies
+    b.id = id
+    id += 1
+  end
+end
+
 ####### Energy #########
 
 function kin_energy(nb::NBodySystem)
@@ -47,7 +55,7 @@ end
 
 read_nbody() = read_nbody_json()
 
-function read_nbody_json(stream::IOStream = STDIN)
+function read_nbody_json(stream::IO = STDIN)
   strs = readlines(stream)
   return read_nbody_json(join(strs))
 end
