@@ -100,6 +100,44 @@ function pot_energy(body::Body, nb::NBodySystem)
   return pot_energy(body, nb.bodies, nb.soften_len)
 end
 
+######## Utils #######
+
+function ordered_radii(nb::NBodySystem)
+  sort(
+    map(x-> dot(x.pos, x.pos), nb.bodies)
+  )
+end
+
+function quartiles(nb::NBodySystem)
+  sorted = ordered_radii(nb)
+  r1 = sqrt(sorted[ceil(Int, nb.N/4)])
+  r2 = sqrt(sorted[ceil(Int, nb.N/2)])
+  r3 = sqrt(sorted[ceil(Int, nb.N*3/4)])
+  r4 = sqrt(sorted[end])
+  (r1, r2, r3, r4)
+end
+
+function shift_to_center_of_mass!(nb::NBodySystem)
+  mass_total = mapreduce(b -> b.mass, +, nb.bodies)
+  com_pos = mapreduce(b -> b.pos*b.mass, +, nb.bodies) / mass_total
+  com_vel = mapreduce(b -> b.vel*b.mass, +, nb.bodies) / mass_total
+
+  for b in nb.bodies
+    b.pos -= com_pos
+    b.vel -= com_vel
+  end
+end
+
+function adjust_units!(nb::NBodySystem)
+  alpha = -pot_energy(nb) / 0.5
+  beta = kin_energy(nb) / 0.25
+
+  for b in nb.bodies
+    b.pos *= alpha
+    b.vel /= sqrt(beta)
+  end
+end
+
 ######## IO ##########
 
 read_nbody() = read_nbody_json()
