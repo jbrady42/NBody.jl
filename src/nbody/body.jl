@@ -15,34 +15,35 @@ end
 
 Body(d::Dict{String, Any}) = Body(d["mass"], d["pos"], d["vel"])
 
+
 ######## IO ###########
 
 import Base.show
 function show(io::IO, a::Body)
-  print(io, "mass: ", a.mass, "\n")
-  print(io, "pos: ", join(a.pos, ", "), "\n")
-  print(io, "vel: ", join(a.vel, ", "), "\n")
+  print(io, "mass:  ", a.mass, "\n")
+  print(io, "pos:   ", join(a.pos, ", "), "\n")
+  print(io, "vel:   ", join(a.vel, ", "), "\n")
 end
 
-function pp(io::IO, a::Body, bodies)
-  acc = accel(a, bodies)
-  show(io, a)
-  print(io, "accel: ", join(acc, ", "), "\n")
-end
+# function pp(io::IO, a::Body, nb::NBodySystem)
+#   acc = accel(a, nb)
+#   show(io, a)
+#   print(io, "accel: ", join(acc, ", "), "\n")
+# end
+#
+# function pp(a::Body, nb::NBodySystem)
+#   pp(STDOUT, a, nb)
+# end
 
-function pp(a::Body, bodies)
-  pp(STDOUT, a)
-end
-
-import Base.print
-function print(io::IO, a::Body)
-  @printf io "%24.16e\n" a.mass
-
-  map(Array[a.pos, a.vel]) do b
-    map(x-> @printf(io,"%24.16e",x), b)
-    print(io, "\n")
-  end
-end
+# import Base.print
+# function print(io::IO, a::Body)
+#   @printf io "%24.16e\n" a.mass
+#
+#   map(Array[a.pos, a.vel]) do b
+#     map(x-> @printf(io,"%24.16e",x), b)
+#     print(io, "\n")
+#   end
+# end
 
 function read_body()
   mass = parse(Float64, readline())

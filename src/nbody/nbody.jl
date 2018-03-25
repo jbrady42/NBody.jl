@@ -15,6 +15,7 @@ function NBodySystem(d::Dict{String, Any})
   bodies = map(Body, d["bodies"])
   NBodySystem(length(bodies), d["time"], bodies, get(d, "initial_energy", 0), get(d, "soften_len", 0))
 end
+
 ####### Energy #########
 
 function kin_energy(nb::NBodySystem)
@@ -77,38 +78,36 @@ function write_snapshot(io::IO, nb::NBodySystem)
   println(io, JSON.json(nb))
 end
 
-import Base.show
-function show(io::IO, nb::NBodySystem)
-  print(io, "N: ", length(nb.bodies), "\n")
-  @printf(io, "time: %24.16e\n", nb.time)
-  for a in nb.bodies
-    show(io, a)
-  end
-end
-
-function ppx(nb::NBodySystem)
-  io = STDERR
-  print(io, "N: ", length(nb.bodies), "\n")
+function ppx(nb::NBodySystem, io = STDERR)
+  # print(io, "N: ", length(nb.bodies), "\n")
   @printf(io, "time: %24.16e\n", nb.time)
   for a in nb.bodies
     show(io, a)
     acc = accel(a, nb)
-    print(io, "accel: ", join(acc, ", "), "\n")
+    print(io, "accel: ", join(acc, ", "), "\n\n")
   end
 end
 
-import Base.print
-function print(io::IO, nb::NBodySystem)
-  print(io, length(nb.bodies), "\n")
-  @printf(io, "%24.16e\n", nb.time)
-  for a in nb.bodies
-    print(io, a)
-  end
-end
+# import Base.show
+# function show(io::IO, nb::NBodySystem)
+#   print(io, "N: ", length(nb.bodies), "\n")
+#   @printf(io, "time: %24.16e\n", nb.time)
+#   for a in nb.bodies
+#     pp(io, a, nb)
+#   end
+# end
+
+# import Base.print
+# function print(io::IO, nb::NBodySystem)
+#   print(io, length(nb.bodies), "\n")
+#   @printf(io, "%24.16e\n", nb.time)
+#   for a in nb.bodies
+#     print(io, a)
+#   end
+# end
 
 function write_stats(nb::NBodySystem, steps, x_info)
   tot_energy = total_energy(nb)
-  # current_time = 0
 
   s = """
   Time:      $(@sprintf("%.3g", nb.time))
