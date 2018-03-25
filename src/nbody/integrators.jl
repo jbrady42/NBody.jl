@@ -114,10 +114,10 @@ function rk4_step(nb::NBodySystem, dt)
 
   a2 = map(nb_accel, nb.bodies)
   for (i, b) in enumerate(nb.bodies)
-    b.pos = old_pos[i] + b.vel*dt + (a0[i]+a1[i]*2)*(1/6.0)*dt*dt
+    b.pos = old_pos[i] + b.vel*dt + (a0[i]+a1[i]*2)*(1//6)*dt*dt
   end
 
   for (i, b) in enumerate(nb.bodies)
-    b.vel += (a0[i]+a1[i]*4+a2[i])*(1/6.0)*dt
+    b.vel += (a0[i]+a1[i]*4+a2[i])*(1//6)*dt
   end
 end
