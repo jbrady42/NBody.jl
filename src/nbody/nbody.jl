@@ -9,7 +9,7 @@ type NBodySystem
   soften_len
 end
 
-NBodySystem(n, current_time) = NBodySystem(n, current_time, Array{Body}(n), 0, 0)
+NBodySystem(n, current_time=0) = NBodySystem(n, current_time, Array{Body}(n), 0, 0)
 
 function NBodySystem(d::Dict{String, Any})
   bodies = map(Body, d["bodies"])
@@ -163,7 +163,7 @@ end
 #   end
 # end
 
-function write_stats(nb::NBodySystem, steps, x_info)
+function write_stats(nb::NBodySystem, steps=0, x_info=false)
   tot_energy = total_energy(nb)
 
   s = """
