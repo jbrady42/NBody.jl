@@ -24,6 +24,44 @@ function set_ids(nb::NBodySystem)
   end
 end
 
+function diff(a::NBodySystem, b::NBodySystem)
+  res = NBodySystem(a.N, b.time)
+  bodies = filter!(x->!isnull(x), map(a.bodies) do body
+    other_body_inds = find(x-> x.id == body.id ,b.bodies)
+    if length(other_body_inds) == 0
+      return Nullable{Body}()
+    end
+
+    other_body = b.bodies[other_body_inds[1]]
+
+    Body(
+      mass = body.mass,
+      pos = other_body.pos - body.pos,
+      vel = other_body.vel - body.vel,
+      id = body.id
+    )
+  end)
+
+  res.bodies = bodies
+  res
+end
+
+function abs(nb::NBodySystem)
+  sqrt.(
+    mapreduce(
+      x -> dot(x.pos, x.pos) + dot(x.vel, x.vel),
+      +,
+      nb.bodies))
+end
+
+function abs_pos(nb::NBodySystem)
+  sqrt.(
+    mapreduce(
+      x -> dot(x.pos, x.pos),
+      +,
+      nb.bodies))
+end
+
 ####### Energy #########
 
 function kin_energy(nb::NBodySystem)

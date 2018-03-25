@@ -6,16 +6,20 @@ type Body
 
   id::Integer
 
-  function Body(mass=0.0, pos=Vector{Float64}, vel=Vector{Float64})
+  function Body(;mass=0.0, pos=Vector{Float64}, vel=Vector{Float64}, id=0)
     # accel_hist_len = 4
     # accel_hist = zeros(Float64, NDIMS, accel_hist_len)
 
-    new(mass, pos, vel)
+    new(mass, pos, vel, id)
   end
 end
 
 function Body(d::Dict{String, Any})
-  b = Body(d["mass"], d["pos"], d["vel"])
+  b = Body(
+    mass = d["mass"],
+    pos = d["pos"],
+    vel = d["vel"]
+  )
   b.id = if haskey(d, "id")
     d["id"]
   else
