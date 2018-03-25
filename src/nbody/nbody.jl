@@ -80,6 +80,17 @@ function init_energy!(nb::NBodySystem)
   nb.initial_energy = total_energy(nb)
 end
 
+function collision_time_scale(nb::NBodySystem)
+  time_scale = Inf
+  for b in nb.bodies
+    indv_time_scale = collision_time_scale(b, nb.bodies)
+    if indv_time_scale < time_scale
+      time_scale = indv_time_scale
+    end
+  end
+  return time_scale
+end
+
 
 function accel(body::Body, nb::NBodySystem)
   return accel(body, nb.bodies, nb.soften_len)

@@ -32,11 +32,24 @@ function parse_commandline()
       arg_type = Float64
       default = 0.001
 
+    "--step_size_control", "-c"
+      help = "Integration time step scaling control"
+      arg_type = Float64
+      default = 0.01
+
     "--integrator", "-i"
       help = "Integration method"
       arg_type = String
       default = "rk4"
       range_tester = x -> haskey(integrators, x)
+
+    "--dynamic_step", "-q"
+      help = "Enable dynamic step size"
+      action = :store_true
+
+    "--exact_time"
+      help = "Force output to occur at exact times"
+      action = :store_true
 
     "--extra_diagnostics", "-x"
       help = "Extra diagnostics"
@@ -64,15 +77,21 @@ function main(args)
 
   method = integrators[args["integrator"]]
 
+  final_snapshot = args["output_interval"] > args["total_duration"]
+
   ea = EvolveArgs(
     method,
     args["softening_length"],
     args["step_size"],
+    args["step_size_control"],
     args["total_duration"],
     args["output_interval"],
     args["diagnostics_interval"],
     !args["no_init_out"],
-    args["extra_diagnostics"]
+    args["extra_diagnostics"],
+    args["dynamic_step"],
+    args["exact_time"],
+    final_snapshot
   )
 
   write_info(args, ea)

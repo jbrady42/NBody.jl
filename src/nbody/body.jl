@@ -87,6 +87,34 @@ end
 # 	return j
 # end
 
+function collision_time_scale(body::Body, bodies::Array{Body})
+  time_scale_sq = Inf
+  for b in bodies
+    if b != body
+      r = b.pos - body.pos
+      v = b.vel - body.vel
+
+      r2 = dot(r,r)
+      v2 = dot(v,v)
+
+      estimate_sq = r2 / v2
+
+      if time_scale_sq > estimate_sq
+        time_scale_sq = estimate_sq
+      end
+
+      a = (body.mass + b.mass) / r2
+      estimate_sq = sqrt(r2) / a
+
+      if time_scale_sq > estimate_sq
+        time_scale_sq = estimate_sq
+      end
+    end
+  end
+
+  sqrt(time_scale_sq)
+end
+
 
 ####### Energy #########
 
