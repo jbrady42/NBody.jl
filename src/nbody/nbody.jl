@@ -47,7 +47,7 @@ function diff(a::NBodySystem, b::NBodySystem)
 end
 
 function abs(nb::NBodySystem)
-  sqrt.(
+  sqrt(
     mapreduce(
       x -> dot(x.pos, x.pos) + dot(x.vel, x.vel),
       +,
@@ -55,7 +55,7 @@ function abs(nb::NBodySystem)
 end
 
 function abs_pos(nb::NBodySystem)
-  sqrt.(
+  sqrt(
     mapreduce(
       x -> dot(x.pos, x.pos),
       +,

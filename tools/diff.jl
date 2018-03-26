@@ -10,24 +10,27 @@ function parse_commandline()
       action = :store_true
   end
 
-  return parse_args(s)
+  parse_args(s)
+end
+
+function read_nb()
+  str = readline(STDIN)
+  NBody.read_nbody_json(str)
 end
 
 function main(args)
-  str = readline(STDIN)
-  nb_a = NBody.read_nbody_json(str)
-
-  str = readline(STDIN)
-  nb_b = NBody.read_nbody_json(str)
+  nb_a = read_nb()
+  nb_b = read_nb()
 
   nb_c = NBody.diff(nb_a, nb_b)
-  # println(nb_c)
 
-  if args["position_only"]
-    println(NBody.abs_pos(nb_c))
+  distance = if args["position_only"]
+    NBody.abs_pos(nb_c)
   else
-    println(NBody.abs(nb_c))
+    NBody.abs(nb_c)
   end
+
+  @printf("Phase Space Distance: %.16e\n", distance)
 end
 
 main(parse_commandline())
