@@ -209,13 +209,14 @@ function write_stats(nb::NBodySystem, steps=0, x_info=false)
   tot_energy = total_energy(nb)
 
   s = """
-  Time:      $(@sprintf("%.3g", nb.time))
-  Steps:     $steps
-  E_Kin:     $(@sprintf("%.3g", kin_energy(nb)))
-  E_Pot:     $(@sprintf("%.3g", pot_energy(nb)))
-  E_Tot:     $(@sprintf("%.3g", tot_energy))
-  E Error:   $(@sprintf("%.3g", (tot_energy - nb.initial_energy)))
-  E % Error: $(@sprintf("%.3g", (tot_energy - nb.initial_energy) / nb.initial_energy))
+        Time  $(@sprintf("%.3g", nb.time))
+       Steps  $steps
+  ========================
+       E_Kin  $(@sprintf("%.3g", kin_energy(nb)))
+       E_Pot  $(@sprintf("%.3g", pot_energy(nb)))
+       E_Tot  $(@sprintf("%.3g", tot_energy))
+       E Err  $(@sprintf("%.3g", (tot_energy - nb.initial_energy)))
+    Err/Init  $(@sprintf("%.3g", (tot_energy - nb.initial_energy) / nb.initial_energy))
 
   """
   write(STDERR, s)
