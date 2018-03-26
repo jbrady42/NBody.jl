@@ -142,3 +142,27 @@ function rk4_step(nb::NBodySystem, dt)
     b.vel += (a0[i]+a1[i]*4+a2[i])*(1//6)*dt
   end
 end
+
+function hermite_step(nb::NBodySystem, dt)
+  old_pos = map(x -> x.pos, nb.bodies)
+  old_vel = map(x -> x.vel, nb.bodies)
+
+  old_acc = map(x -> accel(x, nb), nb.bodies)
+  old_jerk = map(x -> jerk(x, nb), nb.bodies)
+
+  for (i, b) in enumerate(nb.bodies)
+    b.pos += b.vel*dt + old_acc[i]*0.5*dt*dt + old_jerk[i]*(dt*dt*dt/6)
+  end
+
+  for (i, b) in enumerate(nb.bodies)
+    b.vel += old_acc[i]*dt + old_jerk[i]*(dt*dt/2)
+  end
+
+  for (i, b) in enumerate(nb.bodies)
+    b.vel = old_vel[i] + (old_acc[i] + accel(b, nb))*(dt/2) + (old_jerk[i] - jerk(b, nb))*(dt*dt/12)
+  end
+
+  for (i, b) in enumerate(nb.bodies)
+    b.pos = old_pos[i] + (old_vel[i] + b.vel)*(dt/2) + (old_acc[i] - accel(b, nb))*(dt*dt/12)
+  end
+end

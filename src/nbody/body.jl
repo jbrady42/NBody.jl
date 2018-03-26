@@ -80,12 +80,19 @@ function accel(body::Body, bodies::Array{Body}, soft_len)
   acc
 end
 
-# function jerk(body::Body)
-# 	r2 = dot(body.pos, body.pos)
-# 	r3 = r2 * sqrt(r2) # we want r^(2/3)
-# 	j = (body.vel+body.pos*(-3*(dot(body.pos,body.vel))/r2))*(-body.mass/r3)
-# 	return j
-# end
+function jerk(body::Body, bodies::Array{Body}, soft_len)
+  j = zeros(body.vel)
+  for a in bodies
+    if a != body
+      r = a.pos - body.pos
+      r2 = dot(r,r) + soft_len*soft_len
+      r3 = r2*sqrt(r2)
+      v = a.vel - body.vel
+      j += (v-r*(3*dot(r,v)/r2))*(a.mass/r3)
+    end
+  end
+  j
+end
 
 function collision_time_scale(body::Body, bodies::Array{Body})
   time_scale_sq = Inf
@@ -94,8 +101,8 @@ function collision_time_scale(body::Body, bodies::Array{Body})
       r = b.pos - body.pos
       v = b.vel - body.vel
 
-      r2 = dot(r,r)
-      v2 = dot(v,v)
+      r2 = dot(r, r)
+      v2 = dot(v, v)
 
       estimate_sq = r2 / v2
 

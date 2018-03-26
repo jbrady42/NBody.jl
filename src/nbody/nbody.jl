@@ -96,6 +96,10 @@ function accel(body::Body, nb::NBodySystem)
   return accel(body, nb.bodies, nb.soften_len)
 end
 
+function jerk(body::Body, nb::NBodySystem)
+  return jerk(body, nb.bodies, nb.soften_len)
+end
+
 function pot_energy(body::Body, nb::NBodySystem)
   return pot_energy(body, nb.bodies, nb.soften_len)
 end
@@ -211,7 +215,7 @@ function write_stats(nb::NBodySystem, steps=0, x_info=false)
   E_Pot:     $(@sprintf("%.3g", pot_energy(nb)))
   E_Tot:     $(@sprintf("%.3g", tot_energy))
   E Error:   $(@sprintf("%.3g", (tot_energy - nb.initial_energy)))
-  E % Error: $(@sprintf("%.3g", ((tot_energy - nb.initial_energy) / nb.initial_energy) * 100))
+  E % Error: $(@sprintf("%.3g", (tot_energy - nb.initial_energy) / nb.initial_energy))
 
   """
   write(STDERR, s)

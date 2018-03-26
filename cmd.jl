@@ -4,8 +4,9 @@ using NBody
 integrators = Dict(
   "euler"     => NBody.forward_step,
   "leapfrog"  => NBody.leapfrog_step,
-  "rk2"       => NBody.rk4_step,
+  "rk2"       => NBody.rk2_step,
   "rk4"       => NBody.rk4_step,
+  "hermite"   => NBody.hermite_step
 )
 
 function parse_commandline()
