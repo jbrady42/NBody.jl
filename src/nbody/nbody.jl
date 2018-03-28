@@ -16,6 +16,7 @@ function NBodySystem(d::Dict{String, Any})
   NBodySystem(length(bodies), d["time"], bodies, get(d, "initial_energy", 0), get(d, "soften_len", 0))
 end
 
+
 function set_ids(nb::NBodySystem)
   id = 0
   for b in nb.bodies
@@ -62,6 +63,22 @@ function abs_pos(nb::NBodySystem)
       nb.bodies))
 end
 
+####### Integ ##########
+
+function startup!(nb::NBodySystem, dt_param)
+  init_energy!(nb)
+  for b in nb.bodies
+    b.act_vel = b.vel
+    b.act_pos = b.pos
+  end
+
+  for b in nb.bodies
+    b.accel, b.jerk  = accel_and_jerk(b, nb.bodies, nb.soften_len)
+    b.time = nb.time + collision_time_scale(b, nb.bodies) * dt_param
+  end
+end
+
+
 ####### Energy #########
 
 function kin_energy(nb::NBodySystem)
@@ -103,6 +120,11 @@ end
 function pot_energy(body::Body, nb::NBodySystem)
   return pot_energy(body, nb.bodies, nb.soften_len)
 end
+
+function correct_step(body::Body, nb::NBodySystem, t)
+  return correct_step(body, nb.bodies, nb.soften_len)
+end
+
 
 ######## Utils #######
 
