@@ -68,16 +68,34 @@ end
 function startup!(nb::NBodySystem, dt_param)
   init_energy!(nb)
   for b in nb.bodies
-    b.act_vel = b.vel
-    b.act_pos = b.pos
+    b.pred_vel = b.vel
+    b.pred_pos = b.pos
   end
 
   for b in nb.bodies
     b.accel, b.jerk  = accel_and_jerk(b, nb.bodies, nb.soften_len)
-    b.time = nb.time + collision_time_scale(b, nb.bodies) * dt_param
+    b.next_time = nb.time + pred_collision_time_scale(b, nb.bodies) * dt_param
   end
 end
 
+function find_next_particle(nb::NBodySystem)
+  least_time = Inf
+  least_time_ind = 0
+  for (i, b) in enumerate(nb.bodies)
+    if b.next_time < least_time
+      least_time = b.next_time
+      least_time_ind = i
+    end
+  end
+  nb.bodies[least_time_ind]
+end
+
+function sync!(nb::NBodySystem, t, dt_param)
+  for b in nb.bodies
+    forced_step(b, nb.bodies, t, dt_param, nb.soften_len)
+  end
+  nb.time = t
+end
 
 ####### Energy #########
 

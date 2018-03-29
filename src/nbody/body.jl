@@ -13,8 +13,8 @@ type Body
   accel::Vector{Float64}
   jerk::Vector{Float64}
 
-  act_pos::Vector{Float64}
-  act_vel::Vector{Float64}
+  pred_pos::Vector{Float64}
+  pred_vel::Vector{Float64}
 
   function Body(;mass=0.0, pos=Vector{Float64}, vel=Vector{Float64}, id=0)
     # accel_hist_len = 4
@@ -47,11 +47,11 @@ JSON.lower(b::Body) = Dict(
 
 #### Integ ####
 
-function auto_step(body::Body, bodies::Array{Body}, soft_len)
+function auto_step(body::Body, bodies::Array{Body}, dt_param, soft_len)
   take_one_step(body, bodies, body.next_time, dt_param, soft_len)
 end
 
-function forced_step(body::Body, bodies::Array{Body}, t, soft_len)
+function forced_step(body::Body, bodies::Array{Body}, t, dt_param, soft_len)
   take_one_step(body, bodies, t, dt_param, soft_len)
 end
 
@@ -68,29 +68,29 @@ function predict_step(body::Body, t)
     return
   end
 
-  dt = t - body.next_time
-  body.pos = body.act_pos + body.act_vel*dt + body.accel*(dt*dt/2) + body.jerk*(dt*dt*dt/6)
-  body.vel = body.act_vel + body.accel*dt + body.jerk*(dt*dt/2)
+  dt = t - body.time
+  body.pred_pos = body.pos + body.vel*dt + body.accel*(dt*dt/2) + body.jerk*(dt*dt*dt/6)
+  body.pred_vel = body.vel + body.accel*dt + body.jerk*(dt*dt/2)
 end
 
 
 function correct_step(body::Body, bodies::Array{Body}, t, dt_param, soft_len)
-  dt = t - body.next_time
+  dt = t - body.time
   new_acc, new_jerk = accel_and_jerk(body, bodies, soft_len)
 
-  new_vel = body.act_vel + (body.accel + new_acc)*(dt/2) + (body.jerk - new_jerk)*(dt*dt/12)
-  new_pos = body.act_pos + (body.act_vel + new_vel)*(dt/2) + (body.accel - new_acc)*(dt*dt/12)
-
-  body.act_pos = new_pos
-  body.act_vel = new_vel
-  body.accel = new_acc
-  body.jerk = new_jerk
+  new_vel = body.vel + (body.accel + new_acc)*(dt/2) + (body.jerk - new_jerk)*(dt*dt/12)
+  new_pos = body.pos + (body.vel + new_vel)*(dt/2) + (body.accel - new_acc)*(dt*dt/12)
 
   body.pos = new_pos
   body.vel = new_vel
+  body.accel = new_acc
+  body.jerk = new_jerk
+
+  body.pred_pos = new_pos
+  body.pred_vel = new_vel
 
   body.time = t
-  body.next_time = t + collision_time_scale(body, bodies) * dt_param
+  body.next_time = t + pred_collision_time_scale(body, bodies) * dt_param
 end
 
 
@@ -101,14 +101,16 @@ function accel_and_jerk(body::Body, bodies::Array{Body}, soft_len)
   acc = jerk = zeros(body.vel)
   for a in bodies
     if a != body
-      r = a.pos - body.pos
+      r = a.pred_pos - body.pred_pos
       r2 = dot(r,r) + soft_len*soft_len
       r3 = r2*sqrt(r2)
       acc += r*(a.mass/r3)
-      v = a.vel - body.vel
-      j += (v-r*(3*dot(r,v)/r2))*(a.mass/r3)
+
+      v = a.pred_vel - body.pred_vel
+      jerk += (v-r*(3*dot(r,v)/r2))*(a.mass/r3)
     end
   end
+  # println(STDERR, "Acc ", acc, "jerk ", jerk)
   (acc, jerk)
 end
 
@@ -145,6 +147,36 @@ function collision_time_scale(body::Body, bodies::Array{Body})
     if b != body
       r = b.pos - body.pos
       v = b.vel - body.vel
+
+      r2 = dot(r, r)
+      v2 = dot(v, v)
+
+      estimate_sq = r2 / v2
+
+      if time_scale_sq > estimate_sq
+        time_scale_sq = estimate_sq
+      end
+
+      a = (body.mass + b.mass) / r2
+      estimate_sq = sqrt(r2) / a
+
+      if time_scale_sq > estimate_sq
+        time_scale_sq = estimate_sq
+      end
+    end
+  end
+
+  sqrt(time_scale_sq)
+end
+
+ # Todo dry these
+
+function pred_collision_time_scale(body::Body, bodies::Array{Body})
+  time_scale_sq = Inf
+  for b in bodies
+    if b != body
+      r = b.pred_pos - body.pred_pos
+      v = b.pred_vel - body.pred_vel
 
       r2 = dot(r, r)
       v2 = dot(v, v)

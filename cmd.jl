@@ -48,6 +48,10 @@ function parse_commandline()
       help = "Enable dynamic step size"
       action = :store_true
 
+    "--indv_step", "-w"
+      help = "Enable individual dynamic step size"
+      action = :store_true
+
     "--exact_time"
       help = "Force output to occur at exact times"
       action = :store_true
@@ -78,7 +82,7 @@ function main(args)
 
   method = integrators[args["integrator"]]
 
-  final_snapshot = args["output_interval"] > args["total_duration"]
+  final_snapshot = true # args["output_interval"] > args["total_duration"]
 
   ea = EvolveArgs(
     method,
@@ -97,7 +101,13 @@ function main(args)
 
   write_info(args, ea)
 
-  evolve(nb, ea)
+  evolve_fun = if args["indv_step"]
+    NBody.evolve_ind
+  else
+    evolve
+  end
+
+  evolve_fun(nb, ea)
 end
 
 function write_info(args, ea)
