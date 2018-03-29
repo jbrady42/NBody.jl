@@ -100,25 +100,29 @@ function evolve_ind(nb::NBodySystem, arg::EvolveArgs)
 
 
     if nb.time >= t_stats
-      sync!(nb, t_stats, arg.dt_param)
-      step += nb.N
+      nb_copy = deepcopy(nb)
+      sync!(nb_copy, t_stats, arg.dt_param)
+      # step += nb.N
 
-      write_stats(nb, step)
+      write_stats(nb_copy, step)
       t_stats += arg.dt_stats
     end
     if nb.time >= t_checkp
-      sync!(nb, t_checkp, arg.dt_param)
-      step += nb.N
+      nb_copy = deepcopy(nb)
+      sync!(nb_copy, t_checkp, arg.dt_param)
+      # step += nb.N
 
-      write_snapshot(nb)
+      write_snapshot(nb_copy)
       t_checkp += arg.dt_output
     end
   end
 
+  nb_copy = deepcopy(nb)
+  sync!(nb_copy, nb.time, arg.dt_param)
   if arg.final_snapshot
-    write_snapshot(nb)
+    write_snapshot(nb_copy)
   end
-  write_stats(nb, step)
+  write_stats(nb_copy, step)
 
 
 end
